@@ -43,6 +43,8 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    display: block; /* Add this line */
+    vertical-align: middle; /* You can also try adding this line */
   }
   
   .UploadPDF-button:hover {

@@ -20,13 +20,17 @@ function ShareFilesButton({ username }) {
   return (
     <div>
         <center>
-      <Button variant="primary" onClick={handleShareFiles}>Share Files</Button>
+      <Button variant="primary" onClick={handleShareFiles}>Generate Link </Button>
       {sharedLink && (
         <div>
-          <h3>Link Copied Successfully</h3>
+          <h4>Your Shareable Link is Copied Successfully</h4>
         </div>
       )}
       </center>
+      <div className="additional-info" style={{ marginTop: '20px', textAlign: 'center' }}>
+  <p style={{ marginBottom: '10px' }}>Share your resume link with anyone you want by simply sending them the generated link.</p>
+  <p style={{ marginBottom: '10px' }}>This link provides secure access to your resume stored in AWS ResumeVault.</p>
+</div>
     </div>
   );
 }

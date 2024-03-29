@@ -3,7 +3,6 @@ import './updf.css';
 import Button from 'react-bootstrap/Button';
 
 function UploadPDF({ username }) {
-  const [showForm, setShowForm] = useState(false); // State to control form visibility
   const [studentID, setStudentID] = useState('');
   const [pdfFile, setPDFFile] = useState(null);
   const [message, setMessage] = useState('');
@@ -51,10 +50,7 @@ function UploadPDF({ username }) {
 
   return (
     <div>
-      <center>
-    <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Hide Form' : 'Show Form'}</Button></center>
-    <div className="UploadPDF-container">
-      {showForm && (
+      <div className="UploadPDF-container">
         <div>
           <h1 className="UploadPDF-title">Upload PDF</h1>
           <form className="UploadPDF-form">
@@ -82,8 +78,7 @@ function UploadPDF({ username }) {
           </form>
           <div className="UploadPDF-message">{message}</div>
         </div>
-      )}
-    </div>
+      </div>
     </div>
   );
 }

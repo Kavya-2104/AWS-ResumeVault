@@ -1,6 +1,6 @@
-// App.css
 
 /* App container styles */
+
 .App {
   text-align: center;
   padding: 20px;
@@ -17,6 +17,16 @@
 }
 /* App.css */
 
+.options-container {
+  display: flex;
+  justify-content: center; /* Center the buttons */
+  gap: 15px; /* Add space between the buttons */
+  margin-bottom: 20px; 
+}
+
+.active-option-container {
+  margin-top: 20px; /* Add margin at the top to separate from the buttons */
+}
 
 /* Main content styles */
 .content {
