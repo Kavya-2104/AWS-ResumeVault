@@ -1,0 +1,57 @@
+/* UploadPDF.css */
+
+.UploadPDF-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .UploadPDF-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .UploadPDF-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .UploadPDF-label {
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .UploadPDF-input {
+    color:#0056b3;
+    font-weight: bolder;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .UploadPDF-button {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .UploadPDF-button:hover {
+    background-color: #000000;
+  }
+  
+  .UploadPDF-message {
+    margin-top: 20px;
+    color: #333;
+    font-weight: bold;
+  }
+  
