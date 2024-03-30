@@ -1,116 +1,90 @@
-# Getting Started with Create React App
+# resumelambda -> POST Calls
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+import boto3
+import base64
+from io import BytesIO
+from datetime import datetime
 
-## Available Scripts
+s3 = boto3.client('s3')
+dynamodb = boto3.client('dynamodb')
 
-In the project directory, you can run:
+def lambda_handler(event, context):
+    try:
+        ID = event['ID']  # Fetch ID
+        file_name = event['fileName']
+        file_data = event['fileData'].split(',')[1]
+        username = event['username']  # Fetch username
+        
+        # Upload file to S3
+        s3.uploafileobj(
+            Fileobj=BytesIO(base64.b64decode(file_data)),
+            Bucket='resumebucket-2',
+            Key=file_name
+        )
+        
+        # Store file details in DynamoDB
+        timestamp = datetime.now().isoformat()
+        dynamodb.put_item(
+            TableName='resumetable',
+            Item={
+                'fileId': {'S': file_name},
+                'ID': {'S': ID},  # Partition key
+                's3Location': {'S': f'https:/resumebucket-2.s3.us-east-1.amazonaws.com/{file_name}'},
+                'uploadedAt': {'S': timestamp},
+                'username': {'S': username}  # Add username field
+            }
+        )
+        
+        return {'message': 'Data uploaded successfully'}  # Updated response message
+    
+    except Exception as e:
+        print("Error:", e)
+        raise Exception('Failed to upload data')  # Updated error message
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## resumegetlambda -> Retrieve Resumes to Display
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+import json
+import boto3
 
-### `npm test`
+def lambda_handler(event, context):
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    table = dynamodb.Table('resumetable')
 
-### `npm run build`
+    response = table.scan()
+    data = response['Items']
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    while 'LastEvaluatedKey' in response:
+        response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        data.extend(response['Items'])
+    return data
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## GetResumesByUser -> Retrieve Resumes to Display Stored under the Current User
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+import boto3
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+def lambda_handler(event, context):
+    # Get the username from the event
+    username = event['username']
+    
+    # Create a DynamoDB resource
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+    
+    # Define the table
+    table = dynamodb.Table('resumetable')
+    
+    # Perform a query operation to get data for the specified username
+    response = table.query(
+        IndexName='username-index',  # Assuming there's an index on the username attribute
+        KeyConditionExpression='username = :u',
+        ExpressionAttributeValues={':u': username}
+    )
+    
+    # Return the queried data
+    return response['Items']
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-#amplify-do-not-edit-begin
-amplify/\#current-cloud-backend
-amplify/.config/local-*
-amplify/logs
-amplify/mock-data
-amplify/mock-api-resources
-amplify/backend/amplify-meta.json
-amplify/backend/.temp
-build/
-dist/
-node_modules/
-aws-exports.js
-awsconfiguration.json
-amplifyconfiguration.json
-amplifyconfiguration.dart
-amplify-build-config.json
-amplify-gradle-config.json
-amplifytools.xcconfig
-.secret-*
-**.sample
-#amplify-do-not-edit-end
+Create 'username-index' in DynamoDB table item Indexes 
